@@ -1,140 +1,150 @@
-import { useState } from "react";
-import { cn } from "../utils/cn";
-
-const navLinks = [
-  { id: "home", label: "Beranda" },
-  { id: "packages", label: "Paket Umrah" },
-  { id: "about", label: "Tentang Kami" },
-  { id: "testimonials", label: "Testimoni" },
-  { id: "contact", label: "Kontak" },
-];
+import { useState, useEffect } from 'react';
+import { Compass, Phone, Menu, X, Calendar } from 'lucide-react';
 
 interface NavbarProps {
+  onNavigate: (sectionId: string) => void;
   activeSection: string;
 }
 
-export default function Navbar({ activeSection }: NavbarProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+export default function Navbar({ onNavigate, activeSection }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  const scrollTo = (id: string) => {
-    setMobileOpen(false);
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 40) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navItems = [
+    { label: 'Paket Umrah', id: 'paket-umrah' },
+    { label: 'Kalkulator Tabungan', id: 'tabungan' },
+    { label: 'Keberangkatan', id: 'jadwal' },
+    { label: 'Keunggulan', id: 'keunggulan' },
+    { label: 'Testimoni', id: 'testimoni' },
+    { label: 'FAQ', id: 'faq' },
+    { label: 'Tentang Kami', id: 'tentang-kami' }
+  ];
+
+  const handleItemClick = (id: string) => {
+    onNavigate(id);
+    setIsOpen(false);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-emerald-100 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <button
-            onClick={() => scrollTo("home")}
-            className="flex items-center gap-3 group"
-          >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-lg shadow-emerald-200">
-              <span className="text-white font-bold text-lg">ك</span>
-            </div>
-            <div className="hidden sm:block">
-              <h2 className="text-lg font-bold text-emerald-800 leading-tight font-['Playfair_Display']">
-                Khalifah
-              </h2>
-              <p className="text-xs text-emerald-600 tracking-widest uppercase">
-                Tour &amp; Travel
-              </p>
-            </div>
-          </button>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => scrollTo(link.id)}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                  activeSection === link.id
-                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-200"
-                    : "text-slate-600 hover:text-emerald-700 hover:bg-emerald-50"
-                )}
-              >
-                {link.label}
-              </button>
-            ))}
-          </div>
-
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <button
-              onClick={() => scrollTo("contact")}
-              className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-amber-200 transition-all duration-300 hover:-translate-y-0.5"
-            >
-              Daftar Sekarang
-            </button>
-          </div>
-
-          {/* Mobile Hamburger */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 rounded-lg text-emerald-800 hover:bg-emerald-50 transition-colors"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {mobileOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      <div
-        className={cn(
-          "md:hidden overflow-hidden transition-all duration-300",
-          mobileOpen ? "max-h-96 pb-4" : "max-h-0"
-        )}
+    <header className="relative w-full z-50">
+      {/* Main Navbar */}
+      <nav
+        className={`w-full transition-all duration-300 ${
+          isScrolled
+            ? 'fixed top-0 left-0 right-0 bg-emerald-900/95 backdrop-blur-md shadow-lg border-b border-emerald-800 py-3'
+            : 'absolute top-0 left-0 right-0 bg-transparent py-5'
+        }`}
       >
-        <div className="px-4 space-y-2">
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => scrollTo(link.id)}
-              className={cn(
-                "block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all",
-                activeSection === link.id
-                  ? "bg-emerald-600 text-white"
-                  : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
-              )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div 
+              className="flex items-center space-x-2 cursor-pointer group"
+              onClick={() => handleItemClick('hero')}
             >
-              {link.label}
-            </button>
-          ))}
-          <button
-            onClick={() => scrollTo("contact")}
-            className="block w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold text-sm text-center mt-2"
-          >
-            Daftar Sekarang
-          </button>
+              <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-2.5 rounded-xl shadow-md shadow-amber-900/30 group-hover:scale-105 transition-transform">
+                <Compass className="h-6 w-6 text-emerald-950" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-xl font-bold tracking-wider text-white">KHALIFAH</span>
+                  <span className="text-xl font-light text-amber-400 font-serif">TOUR</span>
+                </div>
+                <div className="text-[9px] tracking-[0.25em] text-emerald-300 font-semibold uppercase -mt-1">
+                  Umrah & Hajj Specialist
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemClick(item.id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    activeSection === item.id
+                      ? 'text-amber-400 bg-emerald-800/50 border-b-2 border-amber-400 rounded-b-none'
+                      : 'text-emerald-100 hover:text-amber-300 hover:bg-emerald-800/30'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="hidden lg:flex items-center space-x-3">
+              <button
+                onClick={() => handleItemClick('hubungi-kami')}
+                className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-emerald-950 font-bold px-5 py-2.5 rounded-xl shadow-lg hover:from-amber-400 hover:to-amber-300 active:scale-95 transition-all duration-150 flex items-center gap-2 text-sm cursor-pointer"
+              >
+                <Phone className="h-4 w-4 fill-emerald-950" />
+                <span>Konsultasi Gratis</span>
+              </button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 rounded-lg text-emerald-200 hover:text-amber-400 hover:bg-emerald-800/50 transition-colors focus:outline-none cursor-pointer"
+              >
+                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* Mobile Menu Drawer */}
+        {isOpen && (
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-emerald-950/98 backdrop-blur-lg border-b border-emerald-800 py-4 px-4 shadow-2xl transition-all duration-300">
+            <div className="space-y-1.5">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemClick(item.id)}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all cursor-pointer ${
+                    activeSection === item.id
+                      ? 'text-amber-400 bg-emerald-900 border-l-4 border-amber-400'
+                      : 'text-emerald-200 hover:text-amber-300 hover:bg-emerald-900/60'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+              <div className="pt-4 border-t border-emerald-800/60 mt-3 space-y-3">
+                <a
+                  href="tel:+628112345678"
+                  className="flex items-center justify-center gap-2 w-full border border-emerald-700 hover:bg-emerald-900/50 text-emerald-200 py-3 rounded-xl text-sm font-semibold transition-colors"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>0811-2345-678 (Hotline)</span>
+                </a>
+                <button
+                  onClick={() => handleItemClick('hubungi-kami')}
+                  className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-emerald-950 text-center font-bold py-3.5 rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Calendar className="h-4 w-4" />
+                  <span>Daftar / Konsultasi WA</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
   );
 }

@@ -1,1 +1,0 @@
-# umrah-update-khalifah
